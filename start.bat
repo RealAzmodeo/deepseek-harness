@@ -22,7 +22,10 @@ if %errorlevel% neq 0 (
 )
 
 :: 2. Resolve the pnpm runner. The npm global bin directory is not always on
-::    PATH, so fall back to its absolute shim before reaching for npx.
+::    PATH, so fall back to its absolute shim before reaching for npx. The PATH
+::    prepend matters for CHILD processes too: the repository build shells out
+::    to bare `pnpm` internally (scripts/build.ts runs build:lib:host).
+if exist "%APPDATA%\npm\pnpm.cmd" set "PATH=%APPDATA%\npm;%PATH%"
 set "PNPM_CMD=pnpm"
 where pnpm >nul 2>&1
 if %errorlevel% neq 0 (
