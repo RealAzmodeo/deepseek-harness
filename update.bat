@@ -10,6 +10,10 @@ title DeepSeek Harness - Update
 ::             update only replays your own commits.
 ::
 :: Usage: double-click, or run `update.bat` from a terminal.
+::
+:: master is moved with a fetch refspec and NEVER checked out. These scripts are
+:: committed only on the work branch, so checking out master would delete this
+:: running batch file from disk and cmd.exe would die mid-script.
 :: ===========================================================================
 
 set "WORK_BRANCH=german"
@@ -51,11 +55,14 @@ echo [1/6] Fetching upstream...
 git fetch upstream --prune
 if errorlevel 1 goto :fail
 
-echo [2/6] Fast-forwarding master to upstream/master...
-git checkout master
-if errorlevel 1 goto :fail
-git merge --ff-only upstream/master
-if errorlevel 1 goto :fail
+echo [2/6] Moving local master to upstream/master (no checkout)...
+git fetch upstream master:master
+if errorlevel 1 (
+    echo [WARN] upstream/master is not a fast-forward of local master.
+    echo [WARN] Forcing the local master ref to match upstream.
+    git fetch upstream +master:master
+    if errorlevel 1 goto :fail
+)
 
 echo [3/6] Rebasing %WORK_BRANCH% onto master...
 git checkout %WORK_BRANCH%
