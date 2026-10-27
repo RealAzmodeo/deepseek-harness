@@ -39,16 +39,36 @@ echo ===================================================
 echo Work branch: %WORK_BRANCH%
 echo.
 
-:: Refuse to run with uncommitted work: a rebase would stash or lose it.
+:: Check for uncommitted work
 git diff --quiet && git diff --cached --quiet
 if %errorlevel% neq 0 (
-    echo [ERROR] You have uncommitted changes.
-    echo Commit them first, then run this script again:
-    echo     git add -A
-    echo     git commit -m "wip: ..."
+    echo [AVISO] Tienes cambios personales pendientes sin guardar.
+    echo Para que Git no los pierda al actualizar, deben guardarse en tu rama '%WORK_BRANCH%'.
     echo.
-    pause
-    exit /b 1
+    set "AUTO_SAVE="
+    set /p AUTO_SAVE="Deseas guardarlos automaticamente ahora mismo? [S/N] (por defecto: S): "
+    if "!AUTO_SAVE!"=="" set "AUTO_SAVE=S"
+    if /i "!AUTO_SAVE!"=="S" (
+        echo Guardando tus cambios personales...
+        git add -A
+        git commit -m "chore(local): auto-guardado antes de actualizar"
+        if errorlevel 1 (
+            echo [ERROR] No se pudieron guardar los cambios.
+            pause
+            exit /b 1
+        )
+        echo Cambios guardados con exito.
+        echo.
+    ) else (
+        echo.
+        echo [ERROR] Actualizacion cancelada para no tocar tus archivos sin guardar.
+        echo Puedes guardarlos usando 'guardar-mis-cambios.bat' o manualmente con:
+        echo     git add -A
+        echo     git commit -m "tus cambios..."
+        echo.
+        pause
+        exit /b 1
+    )
 )
 
 echo [1/6] Fetching upstream...
