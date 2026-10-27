@@ -158,7 +158,7 @@ export function Mascot({ useSessions, balance, t }: MascotProps) {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [breakdownOpen, setBreakdownOpen] = useState(false)
 
-  const current = useSessions(state => state.current)
+  const current = useSessions(state => (state as unknown as { current?: string }).current ?? state.ids[0])
   const byId = useSessions(state => state.byId)
 
   // One-second tick drives the countdown.
