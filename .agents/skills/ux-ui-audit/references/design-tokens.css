@@ -1,163 +1,773 @@
 /**
- * Hoja de tokens canónica — Design System.
- * Única fuente de verdad visual. Los componentes NUNCA declaran valores raw
- * (px, hex, z-index, duraciones): todo se resuelve desde estas variables.
- * Nomenclatura: --<grupo>-<rol>[-<estado>]. Escala de espaciado 4/8pt.
+ * HOJA CANÓNICA DE TOKENS — Design System v2 (2025)
+ * =================================================
+ * Única fuente de verdad visual del sistema. Un componente NUNCA declara un
+ * valor raw (hex, px suelto, duración, z-index, radio, sombra). Todo se resuelve
+ * desde estas variables.
+ *
+ * ARQUITECTURA DE TRES CAPAS — el orden importa y es la regla que hace que el
+ * sistema sea mantenible:
+ *
+ *   CAPA 1 · primitivos  (--prim-*)      Valores crudos con nombre escalar.
+ *                                        PROHIBIDO consumirlos en un componente.
+ *   CAPA 2 · semánticos  (--color-*, --space-*, --radius-*, --motion-*, ...)
+ *                                        El ROL. Es la única capa que un
+ *                                        componente puede leer.
+ *                                        PROHIBIDO inventar roles por pantalla.
+ *   CAPA 3 · componente  (--button-*, --input-*, --card-*, --modal-*, ...)
+ *                                        Contrato de un componente concreto.
+ *                                        Declara su valor con fallback al
+ *                                        semántico, de modo que el consumidor
+ *                                        pueda sobrescribirlo sin tocar CSS.
+ *
+ * Salto prohibido: primitivo → componente. Sin la capa semántica en medio, el
+ * theming, el modo oscuro, el alto contraste y el contraste WCAG se rompen,
+ * porque el rol (no el color) es lo que se reasigna por tema.
+ *
+ * REGLAS DURAS
+ *   1. Ningún componente importa `--prim-*`.
+ *   2. Ningún componente escribe un literal: `color: #2563eb` es un defecto.
+ *   3. Los estados (hover/active/disabled) son tokens, no valores calculados en
+ *      el sitio ni `filter: brightness()`.
+ *   4. El modo oscuro redefine tokens semánticos; NUNCA duplica reglas.
+ *   5. `!important` está prohibido en componentes: la cascada se resuelve con
+ *      `@layer` y con la especificidad de la capa de tokens.
+ *   6. `z-index: 9999` está prohibido: se usa la escala, y antes que la escala,
+ *      un contexto de apilamiento (`isolation: isolate`).
+ *
+ * BASELINE: `oklch()` y `color-mix()` son Baseline 2023 (Chrome 111+,
+ * Safari 15.4+, Firefox 113+). Si la matriz de navegadores del producto
+ * incluye navegadores anteriores, el fallback se declara en la capa semántica
+ * con el patrón documentado en `04-tokens-arquitectura.md`; no se duplica la
+ * hoja.
  */
 
-:root {
-  /* ── Espaciado (4/8pt) ─────────────────────────────── */
-  --space-1: 0.25rem;   /*  4px */
-  --space-2: 0.5rem;    /*  8px */
-  --space-3: 0.75rem;   /* 12px */
-  --space-4: 1rem;      /* 16px */
-  --space-5: 1.25rem;   /* 20px */
-  --space-6: 1.5rem;    /* 24px */
-  --space-7: 1.75rem;   /* 28px */
-  --space-8: 2rem;      /* 32px */
-  --space-9: 2.25rem;   /* 36px */
-  --space-10: 2.5rem;   /* 40px */
-  --space-11: 2.75rem;  /* 44px — target táctil mínimo WCAG */
-  --space-12: 3rem;     /* 48px */
-  --space-16: 4rem;     /* 64px */
-  --space-24: 6rem;     /* 96px */
+/* ===========================================================================
+   CAPA 0 · ORDEN DE CAPAS
+   Declarar el orden una vez evita la guerra de especificidad y permite que un
+   producto consumidor sobrescriba el sistema sin `!important`.
+   =========================================================================== */
 
-  /* ── Tipografía ────────────────────────────────────── */
-  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, SFMono-Regular, "Cascadia Code", Consolas, monospace;
+@layer tokens.primitive, tokens.semantic, tokens.component, tokens.theme;
 
-  --text-xs: 0.75rem;   /* 12px */
-  --text-sm: 0.875rem;  /* 14px */
-  --text-base: 1rem;    /* 16px */
-  --text-lg: 1.125rem;  /* 18px */
-  --text-xl: 1.25rem;   /* 20px */
-  --text-2xl: 1.5rem;   /* 24px */
+/* ===========================================================================
+   CAPA 1 · PRIMITIVOS
+   Escalas perceptuales en OKLCH. La L (lightness) es perceptualmente uniforme,
+   así que un salto de 10% de L se ve igual en cualquier tono: eso es lo que
+   permite construir escalas predecibles y calcular contraste.
+   PROHIBIDO: `color: var(--prim-blue-600)` dentro de un componente.
+   =========================================================================== */
 
-  --leading-tight: 1.25;
-  --leading-normal: 1.5;
-  --tracking-tight: -0.01em;
-  --tracking-normal: 0;
-  --weight-regular: 400;
-  --weight-medium: 500;
-  --weight-semibold: 600;
-  --weight-bold: 700;
+@layer tokens.primitive {
+  :root {
+    /* ── Azul (acción / marca) ─────────────────────────────────────────── */
+    --prim-blue-50: oklch(97% 0.014 254);
+    --prim-blue-100: oklch(93% 0.032 255);
+    --prim-blue-200: oklch(88% 0.059 254);
+    --prim-blue-300: oklch(81% 0.101 253);
+    --prim-blue-400: oklch(71% 0.143 254);
+    --prim-blue-500: oklch(62% 0.188 259);
+    --prim-blue-600: oklch(55% 0.212 262);
+    --prim-blue-700: oklch(49% 0.196 263);
+    --prim-blue-800: oklch(42% 0.166 264);
+    --prim-blue-900: oklch(37% 0.135 265);
+    --prim-blue-950: oklch(28% 0.107 266);
 
-  /* ── Paleta semántica (nunca hex raw en componentes) ── */
-  --color-bg: #ffffff;
-  --color-surface: #f8fafc;
-  --color-surface-hover: #f1f5f9;
-  --color-surface-active: #e2e8f0;
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
-  --color-text-disabled: #94a3b8;
-  --color-border: #cbd5e1;
-  --color-border-strong: #94a3b8;
+    /* ── Neutro (superficies, texto, bordes) ───────────────────────────── */
+    --prim-neutral-0: oklch(100% 0 0);
+    --prim-neutral-50: oklch(98% 0.003 248);
+    --prim-neutral-100: oklch(96.8% 0.007 248);
+    --prim-neutral-200: oklch(92.9% 0.013 255);
+    --prim-neutral-300: oklch(86.9% 0.022 253);
+    --prim-neutral-400: oklch(70.4% 0.04 256);
+    --prim-neutral-500: oklch(55.4% 0.046 257);
+    --prim-neutral-600: oklch(44.6% 0.043 257);
+    --prim-neutral-700: oklch(37.2% 0.044 257);
+    --prim-neutral-800: oklch(27.9% 0.041 260);
+    --prim-neutral-900: oklch(20.8% 0.042 266);
+    --prim-neutral-950: oklch(12.9% 0.042 265);
 
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-primary-active: #1e40af;
-  --color-primary-disabled: #bfdbfe;
-  --color-primary-contrast: #ffffff;
-  --color-primary-focus: #60a5fa;   /* anillo de foco */
+    /* ── Rojo (peligro / destructivo) ──────────────────────────────────── */
+    --prim-red-50: oklch(97.1% 0.013 17);
+    --prim-red-100: oklch(93.6% 0.032 18);
+    --prim-red-300: oklch(80.8% 0.114 19);
+    --prim-red-500: oklch(63.7% 0.237 25);
+    --prim-red-600: oklch(57.7% 0.245 27);
+    --prim-red-700: oklch(50.5% 0.213 27);
+    --prim-red-800: oklch(44.4% 0.177 26);
+    --prim-red-900: oklch(39.6% 0.141 25);
+    --prim-red-950: oklch(25.8% 0.092 26);
 
-  --color-danger: #dc2626;
-  --color-danger-hover: #b91c1c;
-  --color-danger-surface: #fef2f2;
-  --color-danger-border: #fecaca;
+    /* ── Verde (éxito) ─────────────────────────────────────────────────── */
+    --prim-green-50: oklch(98.2% 0.018 155);
+    --prim-green-100: oklch(96.2% 0.044 157);
+    --prim-green-500: oklch(72.3% 0.219 150);
+    --prim-green-600: oklch(62.7% 0.194 149);
+    --prim-green-700: oklch(52.7% 0.154 150);
+    --prim-green-800: oklch(44.8% 0.119 151);
+    --prim-green-950: oklch(26.6% 0.065 152);
 
-  --color-success: #16a34a;
-  --color-success-surface: #f0fdf4;
+    /* ── Ámbar (advertencia) ───────────────────────────────────────────── */
+    --prim-amber-50: oklch(98.7% 0.022 95);
+    --prim-amber-100: oklch(96.2% 0.059 95);
+    --prim-amber-500: oklch(76.9% 0.188 70);
+    --prim-amber-600: oklch(66.6% 0.179 58);
+    --prim-amber-700: oklch(55.5% 0.163 49);
+    --prim-amber-800: oklch(47% 0.137 46);
+    --prim-amber-950: oklch(27.9% 0.077 45);
 
-  --color-warning: #d97706;
-  --color-warning-surface: #fffbeb;
+    /* ── Cian (información) ────────────────────────────────────────────── */
+    --prim-cyan-50: oklch(98.4% 0.019 200);
+    --prim-cyan-100: oklch(95.6% 0.045 203);
+    --prim-cyan-500: oklch(71.5% 0.143 215);
+    --prim-cyan-600: oklch(60.9% 0.126 222);
+    --prim-cyan-700: oklch(52% 0.105 224);
+    --prim-cyan-800: oklch(45% 0.085 224);
+    --prim-cyan-950: oklch(30.2% 0.056 229);
 
-  --color-info: #0891b2;
-  --color-info-surface: #ecfeff;
+    /* ── Escala de espaciado 4/8pt ─────────────────────────────────────── */
+    /* Base 4px. Se usa rem para respetar el zoom del navegador y el tamaño de
+       fuente del usuario: `px` fijo rompe 1.4.4 (Resize text). */
+    --prim-space-0: 0;
+    --prim-space-1: 0.25rem; /*   4px */
+    --prim-space-2: 0.5rem; /*   8px */
+    --prim-space-3: 0.75rem; /*  12px */
+    --prim-space-4: 1rem; /*  16px */
+    --prim-space-5: 1.25rem; /*  20px */
+    --prim-space-6: 1.5rem; /*  24px */
+    --prim-space-8: 2rem; /*  32px */
+    --prim-space-10: 2.5rem; /*  40px */
+    --prim-space-11: 2.75rem; /*  44px — target táctil WCAG 2.5.5 */
+    --prim-space-12: 3rem; /*  48px — target táctil Material */
+    --prim-space-16: 4rem; /*  64px */
+    --prim-space-24: 6rem; /*  96px */
 
-  --color-overlay: rgb(15 23 42 / 0.5);  /* scrim de modales */
+    /* ── Escala tipográfica modular (ratio 1.25, fluida) ───────────────── */
+    --prim-text-xs: 0.75rem;
+    --prim-text-sm: 0.875rem;
+    --prim-text-base: 1rem;
+    --prim-text-lg: 1.125rem;
+    --prim-text-xl: 1.25rem;
+    --prim-text-2xl: 1.5rem;
+    --prim-text-3xl: 1.875rem;
+    --prim-text-4xl: 2.25rem;
+    --prim-text-5xl: 3rem;
 
-  /* ── Radios de borde ───────────────────────────────── */
-  --radius-sm: 0.25rem;   /*  4px */
-  --radius-md: 0.5rem;    /*  8px */
-  --radius-lg: 0.75rem;   /* 12px */
-  --radius-xl: 1rem;      /* 16px */
-  --radius-full: 9999px;
+    /* ── Escala de forma (shape scale de Material 3) ───────────────────── */
+    /* Valores de los tokens generados de Material Web (xs 4 / s 8 / m 12 /
+       l 16 / xl 28 / full). Ojo: la documentación de theming de Material Web
+       declara `corner-medium: 6px` mientras los tokens emitidos dicen 12px;
+       cuando el proyecto usa Material, manda el token emitido, no la prosa. */
+    --prim-radius-none: 0;
+    --prim-radius-xs: 0.25rem; /*  4px */
+    --prim-radius-sm: 0.5rem; /*  8px */
+    --prim-radius-md: 0.75rem; /* 12px */
+    --prim-radius-lg: 1rem; /* 16px */
+    --prim-radius-xl: 1.75rem; /* 28px */
+    --prim-radius-full: 9999px;
 
-  /* ── Sombras ───────────────────────────────────────── */
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.06);
-  --shadow-md: 0 4px 6px -1px rgb(15 23 42 / 0.1), 0 2px 4px -2px rgb(15 23 42 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(15 23 42 / 0.1), 0 4px 6px -4px rgb(15 23 42 / 0.1);
-  --shadow-focus: 0 0 0 3px var(--color-primary-focus);
+    /* ── Escala de duración (16 tokens de Material 3) ──────────────────── */
+    --prim-duration-short1: 50ms;
+    --prim-duration-short2: 100ms;
+    --prim-duration-short3: 150ms;
+    --prim-duration-short4: 200ms;
+    --prim-duration-medium1: 250ms;
+    --prim-duration-medium2: 300ms;
+    --prim-duration-medium3: 350ms;
+    --prim-duration-medium4: 400ms;
+    --prim-duration-long1: 450ms;
+    --prim-duration-long2: 500ms;
+    --prim-duration-long3: 550ms;
+    --prim-duration-long4: 600ms;
+    --prim-duration-extra-long1: 700ms;
+    --prim-duration-extra-long2: 800ms;
+    --prim-duration-extra-long3: 900ms;
+    --prim-duration-extra-long4: 1000ms;
 
-  /* ── z-index (escala, sin valores raw) ─────────────── */
-  --z-dropdown: 100;
-  --z-sticky: 200;
-  --z-overlay: 300;
-  --z-modal: 400;
-  --z-popover: 500;
-  --z-toast: 600;
+    /* ── Curvas de easing (Material 3) ─────────────────────────────────── */
+    /* `emphasized` y `standard` comparten curva y se diferencian por la
+       duración con la que se emparejan. `easing-legacy` son las curvas de
+       Material 2, que M3 conserva renombradas: usarlas en M3 es mezclar dos
+       sistemas de movimiento. Una curva inventada por componente es una
+       inconsistencia, no una decisión. */
+    --prim-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+    --prim-ease-emphasized-decelerate: cubic-bezier(0.05, 0.7, 0.1, 1);
+    --prim-ease-emphasized-accelerate: cubic-bezier(0.3, 0, 0.8, 0.15);
+    --prim-ease-standard: cubic-bezier(0.2, 0, 0, 1);
+    --prim-ease-standard-decelerate: cubic-bezier(0, 0, 0, 1);
+    --prim-ease-standard-accelerate: cubic-bezier(0.3, 0, 1, 1);
+    --prim-ease-linear: linear;
+    --prim-ease-legacy: cubic-bezier(0.4, 0, 0.2, 1); /* M2 — no usar en M3 */
 
-  /* ── Movimiento (150–300ms) ────────────────────────── */
-  --duration-fast: 150ms;
-  --duration-base: 200ms;
-  --duration-slow: 300ms;
-  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+    /* ── Escala de z-index ─────────────────────────────────────────────── */
+    /* Solo para elementos que DEBEN quedar fuera del flujo y por encima de
+       todo. La primera herramienta es `isolation: isolate`, no un número. */
+    --prim-z-base: 0;
+    --prim-z-raised: 10;
+    --prim-z-dropdown: 100;
+    --prim-z-sticky: 200;
+    --prim-z-overlay: 300;
+    --prim-z-modal: 400;
+    --prim-z-popover: 500;
+    --prim-z-toast: 600;
+    --prim-z-tooltip: 700;
+
+    /* ── Opacidad / state layers (Material 3) ──────────────────────────── */
+    --prim-state-hover: 0.08;
+    --prim-state-focus: 0.1;
+    --prim-state-pressed: 0.1;
+    --prim-state-dragged: 0.16;
+    --prim-opacity-disabled: 0.38;
+  }
 }
 
-/* Tema oscuro: cambia tokens, nunca reglas duplicadas. */
-[data-theme="dark"] {
-  --color-bg: #0f172a;
-  --color-surface: #1e293b;
-  --color-surface-hover: #334155;
-  --color-surface-active: #475569;
-  --color-text: #f1f5f9;
-  --color-text-muted: #94a3b8;
-  --color-text-disabled: #64748b;
-  --color-border: #334155;
-  --color-border-strong: #475569;
+/* ===========================================================================
+   CAPA 2 · SEMÁNTICOS
+   El ROL. Un componente lee de aquí y de ningún otro sitio. Si un componente
+   necesita un rol que no existe, se AÑADE AQUÍ, no en el componente.
+   =========================================================================== */
 
-  --color-primary: #3b82f6;
-  --color-primary-hover: #60a5fa;
-  --color-primary-active: #93c5fd;
-  --color-primary-disabled: #1e3a8a;
-  --color-primary-focus: #60a5fa;
+@layer tokens.semantic {
+  :root {
+    color-scheme: light dark;
 
-  --color-danger: #f87171;
-  --color-danger-hover: #fca5a5;
-  --color-danger-surface: #450a0a;
-  --color-danger-border: #7f1d1d;
+    /* ── Superficies y fondos ──────────────────────────────────────────── */
+    --color-bg: var(--prim-neutral-0);
+    --color-bg-subtle: var(--prim-neutral-50);
+    --color-surface: var(--prim-neutral-0);
+    --color-surface-raised: var(--prim-neutral-0);
+    --color-surface-sunken: var(--prim-neutral-100);
+    --color-surface-hover: var(--prim-neutral-100);
+    --color-surface-active: var(--prim-neutral-200);
+    --color-surface-selected: var(--prim-blue-50);
+    --color-surface-inverse: var(--prim-neutral-900);
 
-  --color-success: #4ade80;
-  --color-success-surface: #052e16;
+    /* ── Texto ─────────────────────────────────────────────────────────── */
+    /* `text` sobre `bg` debe medir ≥ 4.5:1; `text-muted` también: es el error
+       más frecuente de un design system (gris "elegante" que no pasa AA). */
+    --color-text: var(--prim-neutral-900);
+    --color-text-muted: var(--prim-neutral-600);
+    --color-text-subtle: var(--prim-neutral-500); /* solo texto ≥ 18.66px bold o ≥ 24px */
+    --color-text-inverse: var(--prim-neutral-50);
+    --color-text-disabled: var(--prim-neutral-400);
+    --color-text-on-action: var(--prim-neutral-0);
 
-  --color-warning: #fbbf24;
-  --color-warning-surface: #451a03;
+    /* ── Bordes y separadores ──────────────────────────────────────────── */
+    --color-border: var(--prim-neutral-200);
+    --color-border-strong: var(--prim-neutral-400);
+    --color-border-interactive: var(--prim-neutral-500); /* ≥ 3:1 sobre la superficie (1.4.11) */
+    --color-divider: var(--prim-neutral-200);
 
-  --color-info: #22d3ee;
-  --color-info-surface: #083344;
+    /* ── Acción (marca) ────────────────────────────────────────────────── */
+    --color-action: var(--prim-blue-600);
+    --color-action-hover: var(--prim-blue-700);
+    --color-action-active: var(--prim-blue-800);
+    --color-action-subtle: var(--prim-blue-50);
+    --color-action-on: var(--prim-neutral-0);
+    --color-action-disabled: var(--prim-neutral-200);
+    --color-action-on-disabled: var(--prim-neutral-400);
 
-  --color-overlay: rgb(0 0 0 / 0.6);
+    /* ── Feedback (nunca se comunica solo con color: 1.4.1) ────────────── */
+    --color-danger: var(--prim-red-600);
+    --color-danger-hover: var(--prim-red-700);
+    --color-danger-subtle: var(--prim-red-50);
+    --color-danger-border: var(--prim-red-300);
+    --color-danger-text: var(--prim-red-700);
+    --color-danger-on: var(--prim-neutral-0);
 
-  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5), 0 2px 4px -2px rgb(0 0 0 / 0.5);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+    --color-success: var(--prim-green-600);
+    --color-success-subtle: var(--prim-green-50);
+    --color-success-border: var(--prim-green-500);
+    --color-success-text: var(--prim-green-700);
+    --color-success-on: var(--prim-neutral-0);
+
+    --color-warning: var(--prim-amber-600);
+    --color-warning-subtle: var(--prim-amber-50);
+    --color-warning-border: var(--prim-amber-500);
+    --color-warning-text: var(--prim-amber-800);
+    --color-warning-on: var(--prim-neutral-900);
+
+    --color-info: var(--prim-cyan-600);
+    --color-info-subtle: var(--prim-cyan-50);
+    --color-info-border: var(--prim-cyan-500);
+    --color-info-text: var(--prim-cyan-700);
+    --color-info-on: var(--prim-neutral-0);
+
+    /* ── Foco ──────────────────────────────────────────────────────────── */
+    /* El foco se dibuja con `outline`, no con `box-shadow`: `outline` no se
+       recorta por `overflow: hidden`, no depende del radio y sobrevive a
+       `forced-colors`. */
+    --focus-ring-color: var(--prim-blue-600);
+    --focus-ring-width: 2px;
+    --focus-ring-offset: 2px;
+
+    /* ── Overlay / scrim ───────────────────────────────────────────────── */
+    --color-overlay: oklch(20.8% 0.042 266 / 0.55);
+    --color-scrim: oklch(0% 0 0 / 0.45); /* respaldo de texto sobre imagen o glass */
+
+    /* ── Glass (ver 06-glassmorphism.md para los límites de uso) ───────── */
+    /* Glass es una SUPERFICIE DE APOYO, nunca una superficie de lectura. */
+    --glass-bg: oklch(100% 0 0 / 0.1);
+    --glass-bg-strong: oklch(100% 0 0 / 0.18);
+    --glass-border: oklch(100% 0 0 / 0.24);
+    --glass-blur: 16px; /* 12–20px. >24px es decoración, no legibilidad */
+    --glass-blur-strong: 24px;
+    --glass-saturate: 140%;
+    --glass-fallback-bg: var(--color-surface-raised); /* @supports / reduced-transparency */
+
+    /* ── Espaciado semántico ───────────────────────────────────────────── */
+    --space-inline-xs: var(--prim-space-1);
+    --space-inline-sm: var(--prim-space-2);
+    --space-inline-md: var(--prim-space-3);
+    --space-inline-lg: var(--prim-space-4);
+    --space-stack-sm: var(--prim-space-2);
+    --space-stack-md: var(--prim-space-4);
+    --space-stack-lg: var(--prim-space-6);
+    --space-section: var(--prim-space-12);
+    --space-page-inline: var(--prim-space-4);
+
+    /* ── Tipografía semántica ──────────────────────────────────────────── */
+    --font-sans:
+      system-ui, -apple-system, 'Segoe UI Variable Text', 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+      sans-serif;
+    --font-mono: ui-monospace, 'Cascadia Code', 'SFMono-Regular', Consolas, monospace;
+
+    --text-body-sm: var(--prim-text-sm);
+    --text-body: var(--prim-text-base);
+    --text-body-lg: var(--prim-text-lg);
+    --text-title-sm: var(--prim-text-lg);
+    --text-title: var(--prim-text-xl);
+    --text-title-lg: var(--prim-text-2xl);
+    --text-display: clamp(var(--prim-text-3xl), 4vw, var(--prim-text-5xl));
+
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.625;
+
+    --tracking-tight: -0.011em;
+    --tracking-normal: 0;
+    --tracking-wide: 0.02em;
+
+    --weight-regular: 400;
+    --weight-medium: 500;
+    --weight-semibold: 600;
+    --weight-bold: 700;
+
+    --measure-prose: 68ch; /* longitud de línea legible; sin esto el texto largo cansa */
+    --measure-narrow: 45ch;
+
+    /* ── Radios semánticos ─────────────────────────────────────────────── */
+    --radius-control: var(--prim-radius-md);
+    --radius-surface: var(--prim-radius-lg);
+    --radius-overlay: var(--prim-radius-xl);
+    --radius-pill: var(--prim-radius-full);
+
+    /* ── Elevación ─────────────────────────────────────────────────────── */
+    /* Dos sombras por nivel (una de contacto + una ambiental) es lo que hace
+       que la elevación se lea como profundidad y no como mancha gris. */
+    --elevation-0: none;
+    --elevation-1: 0 1px 2px oklch(0% 0 0 / 0.06), 0 1px 3px oklch(0% 0 0 / 0.1);
+    --elevation-2: 0 2px 4px oklch(0% 0 0 / 0.06), 0 4px 8px oklch(0% 0 0 / 0.08);
+    --elevation-3: 0 4px 8px oklch(0% 0 0 / 0.08), 0 8px 16px oklch(0% 0 0 / 0.1);
+    --elevation-4: 0 8px 16px oklch(0% 0 0 / 0.1), 0 16px 32px oklch(0% 0 0 / 0.12);
+    --elevation-5: 0 16px 32px oklch(0% 0 0 / 0.12), 0 24px 48px oklch(0% 0 0 / 0.16);
+
+    /* ── Movimiento semántico ──────────────────────────────────────────── */
+    --motion-duration-instant: var(--prim-duration-short1);
+    --motion-duration-fast: var(--prim-duration-short3); /* 150ms */
+    --motion-duration-base: var(--prim-duration-medium1); /* 250ms */
+    --motion-duration-slow: var(--prim-duration-medium4); /* 400ms */
+    --motion-ease-enter: var(--prim-ease-decelerate);
+    --motion-ease-exit: var(--prim-ease-accelerate);
+    --motion-ease-move: var(--prim-ease-standard);
+    --motion-ease-emphasized: var(--prim-ease-emphasized);
+
+    /* ── Densidad ──────────────────────────────────────────────────────── */
+    /* Un producto denso (tabla, panel de datos, IDE) cambia DENSIDAD, no
+       tipografía ni contraste. */
+    --density-control-height: var(--prim-space-11); /* 44px mínimo táctil */
+    --density-row-height: var(--prim-space-10);
+    --density-gap: var(--prim-space-3);
+    --density-padding-inline: var(--prim-space-3);
+
+    /* ── Layout ────────────────────────────────────────────────────────── */
+    --container-sm: 40rem;
+    --container-md: 48rem;
+    --container-lg: 64rem;
+    --container-xl: 80rem;
+
+    /* ── z-index semántico ─────────────────────────────────────────────── */
+    --z-dropdown: var(--prim-z-dropdown);
+    --z-sticky: var(--prim-z-sticky);
+    --z-overlay: var(--prim-z-overlay);
+    --z-modal: var(--prim-z-modal);
+    --z-popover: var(--prim-z-popover);
+    --z-toast: var(--prim-z-toast);
+    --z-tooltip: var(--prim-z-tooltip);
+  }
+
+  /* Producto denso: se activa con un atributo, no reescribiendo componentes. */
+  [data-density='compact'] {
+    --density-control-height: var(--prim-space-8);
+    --density-row-height: var(--prim-space-8);
+    --density-gap: var(--prim-space-2);
+    --density-padding-inline: var(--prim-space-2);
+  }
+
+  /* Área táctil ampliada sin cambiar el tamaño visual del control: el mínimo
+     de 44px se cumple con un pseudo-elemento, no agrandando el icono. */
+  .touch-target::after {
+    content: '';
+    position: absolute;
+    inset: calc((var(--prim-space-11) - 100%) / 2);
+    min-width: var(--prim-space-11);
+    min-height: var(--prim-space-11);
+  }
 }
 
-/* Patrón de foco accesible: aplicar a todo elemento interactivo. */
-:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus);
+/* ===========================================================================
+   CAPA 3 · COMPONENTE
+   El contrato de cada componente. Declara sus variables con FALLBACK al token
+   semántico: así el componente funciona sin configuración y el consumidor
+   puede tematizarlo sin tocar el CSS del componente.
+   PROHIBIDO: que el valor de fallback sea un literal.
+   =========================================================================== */
+
+@layer tokens.component {
+  :root {
+    /* ── Button ────────────────────────────────────────────────────────── */
+    --button-height: var(--density-control-height);
+    --button-padding-inline: var(--space-inline-lg);
+    --button-gap: var(--space-inline-sm);
+    --button-radius: var(--radius-control);
+    --button-font: var(--weight-medium) var(--text-body) / var(--leading-tight) var(--font-sans);
+    --button-bg: var(--color-action);
+    --button-fg: var(--color-action-on);
+    --button-bg-hover: var(--color-action-hover);
+    --button-bg-active: var(--color-action-active);
+    --button-bg-disabled: var(--color-action-disabled);
+    --button-fg-disabled: var(--color-action-on-disabled);
+    --button-transition: background-color var(--motion-duration-fast) var(--motion-ease-move);
+
+    /* ── Field (input, select, textarea) ───────────────────────────────── */
+    --field-height: var(--density-control-height);
+    --field-padding-inline: var(--space-inline-md);
+    --field-radius: var(--radius-control);
+    --field-bg: var(--color-surface);
+    --field-fg: var(--color-text);
+    --field-border: var(--color-border-interactive);
+    --field-border-hover: var(--color-border-strong);
+    --field-border-invalid: var(--color-danger);
+    --field-label-fg: var(--color-text);
+    --field-hint-fg: var(--color-text-muted);
+    --field-error-fg: var(--color-danger-text);
+    --field-placeholder-fg: var(--color-text-muted);
+    --field-gap: var(--space-inline-xs);
+
+    /* ── Card / superficie ─────────────────────────────────────────────── */
+    --card-bg: var(--color-surface-raised);
+    --card-fg: var(--color-text);
+    --card-border: var(--color-border);
+    --card-radius: var(--radius-surface);
+    --card-padding: var(--space-stack-md);
+    --card-shadow: var(--elevation-1);
+    --card-shadow-hover: var(--elevation-2); /* solo si la card es interactiva */
+
+    /* ── Modal / dialog ────────────────────────────────────────────────── */
+    --modal-bg: var(--color-surface-raised);
+    --modal-fg: var(--color-text);
+    --modal-radius: var(--radius-overlay);
+    --modal-padding: var(--space-stack-lg);
+    --modal-shadow: var(--elevation-5);
+    --modal-overlay: var(--color-overlay);
+    --modal-max-width: var(--container-sm);
+
+    /* ── Nav / barra superior (superficie de glass admitida) ───────────── */
+    --nav-height: var(--prim-space-16);
+    --nav-bg: var(--color-surface);
+    --nav-bg-glass: var(--glass-bg-strong);
+    --nav-blur: var(--glass-blur);
+    --nav-border: var(--color-border);
+
+    /* ── Feedback (toast / alert / banner) ─────────────────────────────── */
+    --feedback-bg: var(--color-surface-raised);
+    --feedback-border: var(--color-border);
+    --feedback-fg: var(--color-text);
+    --feedback-radius: var(--radius-control);
+    --feedback-padding: var(--space-inline-md);
+    --feedback-shadow: var(--elevation-3);
+
+    /* ── Badge / chip ──────────────────────────────────────────────────── */
+    --badge-bg: var(--color-surface-sunken);
+    --badge-fg: var(--color-text);
+    --badge-radius: var(--radius-pill);
+    --badge-padding-inline: var(--space-inline-sm);
+    --badge-font: var(--weight-medium) var(--text-body-sm) / var(--leading-tight) var(--font-sans);
+
+    /* ── Skeleton ──────────────────────────────────────────────────────── */
+    --skeleton-bg: var(--color-surface-sunken);
+    --skeleton-highlight: var(--color-surface-hover);
+    --skeleton-radius: var(--radius-control);
+  }
 }
 
-/* Reduce motion: se degrada la animación, no se elimina el feedback. */
+/* ===========================================================================
+   CAPA 4 · TEMAS
+   Un tema reasigna TOKENS SEMÁNTICOS. Nunca redefine reglas, nunca duplica
+   selectores, nunca usa `!important`.
+   =========================================================================== */
+
+@layer tokens.theme {
+  /* Oscuro explícito (preferencia del producto, se gana a la del sistema). */
+  [data-theme='dark'] {
+    color-scheme: dark;
+
+    --color-bg: var(--prim-neutral-950);
+    --color-bg-subtle: var(--prim-neutral-900);
+    --color-surface: var(--prim-neutral-900);
+    --color-surface-raised: var(--prim-neutral-800);
+    --color-surface-sunken: var(--prim-neutral-950);
+    --color-surface-hover: var(--prim-neutral-800);
+    --color-surface-active: var(--prim-neutral-700);
+    --color-surface-selected: var(--prim-blue-950);
+    --color-surface-inverse: var(--prim-neutral-50);
+
+    --color-text: var(--prim-neutral-50);
+    --color-text-muted: var(--prim-neutral-300);
+    --color-text-subtle: var(--prim-neutral-400);
+    --color-text-inverse: var(--prim-neutral-900);
+    --color-text-disabled: var(--prim-neutral-600);
+    --color-text-on-action: var(--prim-neutral-0);
+
+    --color-border: var(--prim-neutral-700);
+    --color-border-strong: var(--prim-neutral-500);
+    --color-border-interactive: var(--prim-neutral-400);
+    --color-divider: var(--prim-neutral-800);
+
+    /* En oscuro la acción sube de luminosidad y el texto SOBRE la acción baja:
+       invertir el par es lo que mantiene el contraste ≥ 4.5:1. */
+    --color-action: var(--prim-blue-400);
+    --color-action-hover: var(--prim-blue-300);
+    --color-action-active: var(--prim-blue-200);
+    --color-action-subtle: var(--prim-blue-950);
+    --color-action-on: var(--prim-neutral-950);
+
+    --color-danger: var(--prim-red-300);
+    --color-danger-hover: var(--prim-red-500);
+    --color-danger-subtle: var(--prim-red-950);
+    --color-danger-border: var(--prim-red-800);
+    --color-danger-text: var(--prim-red-300);
+    --color-danger-on: var(--prim-neutral-950);
+
+    --color-success: var(--prim-green-500);
+    --color-success-subtle: var(--prim-green-950);
+    --color-success-text: var(--prim-green-500);
+    --color-success-on: var(--prim-neutral-950);
+
+    --color-warning: var(--prim-amber-500);
+    --color-warning-subtle: var(--prim-amber-950);
+    --color-warning-text: var(--prim-amber-500);
+    --color-warning-on: var(--prim-neutral-950);
+
+    --color-info: var(--prim-cyan-500);
+    --color-info-subtle: var(--prim-cyan-950);
+    --color-info-text: var(--prim-cyan-500);
+    --color-info-on: var(--prim-neutral-950);
+
+    --focus-ring-color: var(--prim-blue-300);
+    --color-overlay: oklch(0% 0 0 / 0.7);
+    --color-scrim: oklch(0% 0 0 / 0.6);
+
+    /* En oscuro el glass se construye con NEGRO translúcido, no con blanco:
+       blanco sobre fondo oscuro sube el contraste pero ensucia el color. */
+    --glass-bg: oklch(20.8% 0.042 266 / 0.6);
+    --glass-bg-strong: oklch(27.9% 0.041 260 / 0.72);
+    --glass-border: oklch(100% 0 0 / 0.12);
+    --glass-fallback-bg: var(--color-surface-raised);
+    --nav-bg-glass: var(--glass-bg-strong);
+
+    --elevation-1: 0 1px 2px oklch(0% 0 0 / 0.4), 0 1px 3px oklch(0% 0 0 / 0.5);
+    --elevation-2: 0 2px 4px oklch(0% 0 0 / 0.4), 0 4px 8px oklch(0% 0 0 / 0.5);
+    --elevation-3: 0 4px 8px oklch(0% 0 0 / 0.45), 0 8px 16px oklch(0% 0 0 / 0.5);
+    --elevation-4: 0 8px 16px oklch(0% 0 0 / 0.5), 0 16px 32px oklch(0% 0 0 / 0.55);
+    --elevation-5: 0 16px 32px oklch(0% 0 0 / 0.55), 0 24px 48px oklch(0% 0 0 / 0.6);
+  }
+
+  /* Oscuro por preferencia del sistema, siempre que el producto no haya fijado
+     un tema explícito (`:not([data-theme])`). */
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+      color-scheme: dark;
+    }
+  }
+
+  /* ── Alto contraste ──────────────────────────────────────────────────── */
+  @media (prefers-contrast: more) {
+    :root {
+      --color-text-muted: var(--color-text);
+      --color-border: var(--color-border-strong);
+      --glass-bg: var(--glass-fallback-bg);
+      --glass-bg-strong: var(--glass-fallback-bg);
+    }
+  }
+
+  /* ── Transparencia reducida ──────────────────────────────────────────────
+     Una preferencia del sistema no es una sugerencia: si el usuario la pide,
+     el glass se convierte en superficie sólida. `backdrop-filter` se apaga. */
+  @media (prefers-reduced-transparency: reduce) {
+    :root {
+      --glass-bg: var(--glass-fallback-bg);
+      --glass-bg-strong: var(--glass-fallback-bg);
+      --glass-border: var(--color-border);
+      --nav-bg-glass: var(--nav-bg);
+    }
+  }
+
+  /* ── Modo forzado (Windows Alto contraste) ─────────────────────────────── */
+  @media (forced-colors: active) {
+    :root {
+      --glass-bg: Canvas;
+      --glass-bg-strong: Canvas;
+      --glass-border: CanvasText;
+      --focus-ring-color: Highlight;
+      --elevation-1: none;
+      --elevation-2: none;
+      --elevation-3: none;
+      --elevation-4: none;
+      --elevation-5: none;
+    }
+  }
+}
+
+/* ===========================================================================
+   PATRONES DE USO
+   Los tres únicos bloques globales que la hoja impone. Todo lo demás pertenece
+   al componente.
+   =========================================================================== */
+
+/* Foco visible: se dibuja con `outline` + `outline-offset` para que no lo
+   recorte `overflow: hidden` y para que funcione con radios y modos forzados.
+   `:focus-visible` respeta el ratón sin renunciar al teclado. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: var(--focus-ring-offset);
+  border-radius: inherit;
+}
+
+/* Nunca eliminar el foco sin sustituirlo. `.outline-none { outline: 0 }` sin un
+   indicador alternativo es un defecto crítico (WCAG 2.4.7). */
+
+/* Movimiento reducido: se degrada la animación, NO se elimina el feedback. Un
+   cambio de estado debe seguir siendo perceptible, solo que sin desplazamiento. */
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-duration-instant: 1ms;
+    --motion-duration-fast: 1ms;
+    --motion-duration-base: 1ms;
+    --motion-duration-slow: 1ms;
+    --motion-ease-enter: linear;
+    --motion-ease-exit: linear;
+    --motion-ease-move: linear;
+    --motion-ease-emphasized: linear;
+  }
+
   *,
   *::before,
   *::after {
-    transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
+    animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
   }
+}
+
+/* ---------------------------------------------------------------------------
+   EJEMPLO DE CONSUMO CORRECTO — un átomo (botón) con estados completos.
+   Observa: cero literales, cero primitivos, cero !important.
+   --------------------------------------------------------------------------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--button-gap);
+  min-height: var(--button-height); /* ≥ 44px: cumple 2.5.5 y el 48dp de M3 */
+  padding-inline: var(--button-padding-inline);
+  border: 1px solid transparent;
+  border-radius: var(--button-radius);
+  background: var(--button-bg);
+  color: var(--button-fg);
+  font: var(--button-font);
+  transition: var(--button-transition);
+  cursor: pointer;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--button-bg-hover);
+}
+.btn:active:not(:disabled) {
+  background: var(--button-bg-active);
+}
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  background: var(--button-bg-disabled);
+  color: var(--button-fg-disabled);
+  cursor: not-allowed;
+}
+/* El estado disabled NO se hace con `opacity: .5` sobre un botón que sigue
+   recibiendo puntero ni con `pointer-events: none` sin semántica: se usa
+   `disabled` real, o `aria-disabled` + guarda en el handler. */
+
+/* ---------------------------------------------------------------------------
+   GLASS — el único patrón admitido. Requiere fondo real detrás, borde de 1px,
+   saturación y un fallback sólido y opaco.
+   --------------------------------------------------------------------------- */
+
+.glass-surface {
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border); /* tapa el "bleeding" del blur en el canto */
+  border-radius: var(--radius-surface);
+  /* `-webkit-` primero: WebKit lo exige y sin él la superficie queda opaca. */
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate));
+  /* Doble sombra: brillo de canto + separación real. Una sola sombra difusa
+     deja el panel flotando sin apoyo. */
+  box-shadow:
+    inset 0 1px 0 var(--glass-border),
+    var(--elevation-2);
+}
+
+/* `isolation: isolate` NO crea un backdrop root: sirve para aislar
+   `mix-blend-mode`, no arregla ni rompe el glass. Lo que SÍ crea un backdrop
+   root y trunca lo que el blur puede ver es un ancestro con `opacity < 1`,
+   `filter`, `mask`, `clip-path`, `backdrop-filter` o `will-change` de esos —
+   es la causa habitual de "el blur no funciona". */
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass-surface {
+    background: var(--glass-fallback-bg);
+  }
+}
+
+/* Una preferencia del sistema no es una sugerencia: el glass degrada a
+   superficie sólida, con la misma jerarquía y el mismo layout. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+  .glass-surface {
+    background: var(--glass-fallback-bg);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+/* Un `backdrop-filter` distinto de `none` crea stacking context Y containing
+   block para descendientes `absolute`/`fixed`: un `position: fixed` dentro de
+   un panel glass se posiciona respecto al panel, no al viewport. */
+
+/* Texto sobre glass: SIEMPRE sobre un scrim. El contraste medido contra la
+   superficie nominal no vale, porque el fondo es variable píxel a píxel
+   (1.4.3 exige el contraste real sobre el peor píxel del peor estado). */
+.glass-surface--with-text {
+  background-color: color-mix(in oklab, var(--glass-fallback-bg) 55%, transparent);
+  -webkit-backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
+  backdrop-filter: blur(var(--glass-blur-strong)) saturate(var(--glass-saturate));
 }
