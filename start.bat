@@ -49,10 +49,22 @@ if %errorlevel% neq 0 (
 )
 
 :: 4. Build the artifacts the Web UI serves: the CLI, the client plugin bundles,
-::    and the frontend dist. A missing dist means a stale or never-built tree.
-if not exist "apps\web\dist\index.html" (
-    echo [INFO] Frontend dist not found. Building project artifacts...
-    call %PNPM_CMD% run build
+::    and the frontend dist. A missing dist or record means a stale or never-built tree.
+set "DO_BUILD=0"
+if "%~1"=="--build" (
+    set "DO_BUILD=1"
+    shift
+)
+if "%~1"=="-b" (
+    set "DO_BUILD=1"
+    shift
+)
+if not exist "apps\web\dist\index.html" set "DO_BUILD=1"
+if not exist ".dsh-build\client-build-environment.json" set "DO_BUILD=1"
+
+if "!DO_BUILD!"=="1" (
+    echo [INFO] Building project artifacts...
+    call %PNPM_CMD% run build:artifacts
     if %errorlevel% neq 0 (
         echo [ERROR] Build step failed.
         echo.
