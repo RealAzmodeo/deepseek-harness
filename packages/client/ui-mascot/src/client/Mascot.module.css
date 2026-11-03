@@ -1,0 +1,406 @@
+/* Cost mascot widget: floating bottom-right controls with a speech bubble and
+   settings panel. Colors key off the three states via .off-peak/.peak/.danger.
+   Uses the app's --dsw-* theme tokens so text stays legible on light + dark. */
+
+.root {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  pointer-events: auto;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.mascot {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  background: var(--dsw-specific-bubble, #f5f6f7);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 22%);
+  padding: 0;
+  transition: transform 120ms ease;
+}
+
+.mascot:hover {
+  transform: translateY(-2px);
+}
+
+.emoji {
+  font-size: 28px;
+  line-height: 1;
+}
+
+.art {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* State accent colors: green (saving), yellow (peak), red (danger). */
+.off-peak { border-color: #22c55e; }
+.peak { border-color: #eab308; }
+.danger { border-color: #ef4444; }
+
+.gear {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.12));
+  background: var(--dsw-specific-bubble, #f5f6f7);
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+  padding: 0;
+  box-shadow: 0 2px 8px rgb(0 0 0 / 18%);
+}
+
+.bubble {
+  width: 260px;
+  background: var(--dsw-specific-bubble, #f5f6f7);
+  color: var(--dsw-alias-label-primary, #0f1115);
+  border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.12));
+  border-radius: 12px;
+  padding: 10px 12px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 24%);
+}
+
+.hero {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--dsw-alias-border-l2, rgba(0, 0, 0, 0.1));
+}
+
+.balanceAmount {
+  font-size: 18px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--dsw-alias-label-primary, #0f1115);
+}
+
+/* Balance health pill: solid fill so it reads on light and dark cards. */
+.pill {
+  font-size: 11px;
+  font-weight: 650;
+  padding: 2px 8px;
+  border-radius: 999px;
+  line-height: 1.4;
+}
+
+.pill.low { background: #ef4444; color: #fff; }
+.pill.mid { background: #f59e0b; color: #1a1200; }
+.pill.high { background: #22c55e; color: #06270f; }
+
+.rateBlock {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--dsw-alias-border-l2, rgba(0, 0, 0, 0.1));
+}
+
+.rateLabel {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--dsw-alias-label-primary, #0f1115);
+}
+
+.rateEnds {
+  font-size: 11px;
+  margin-top: 2px;
+  color: var(--dsw-alias-label-secondary, #5b5b66);
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  margin: 0;
+  font-size: 12px;
+}
+
+.fact {
+  display: contents;
+}
+
+.fact dt {
+  color: var(--dsw-alias-label-secondary, #5b5b66);
+}
+
+.fact dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--dsw-alias-label-primary, #0f1115);
+}
+
+.costSection {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--dsw-alias-border-l2, rgba(0, 0, 0, 0.1));
+}
+
+.costToggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 2px 0;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--dsw-alias-label-secondary, #5b5b66);
+}
+
+.costChevron {
+  font-size: 10px;
+  color: var(--dsw-alias-label-tertiary, #9a9aa3);
+  width: 12px;
+  flex: none;
+}
+
+.costRows {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.costRow {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: baseline;
+  font-size: 12px;
+  padding: 2px 0;
+}
+
+.costRowLabel {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+}
+
+.costSubagent {
+  color: var(--dsw-alias-label-tertiary, #9a9aa3);
+  flex: none;
+}
+
+.costRowTitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--dsw-alias-label-primary, #0f1115);
+}
+
+.costRowTokens {
+  font-size: 11px;
+  color: var(--dsw-alias-label-secondary, #5b5b66);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.costRowCost {
+  font-variant-numeric: tabular-nums;
+  color: var(--dsw-alias-label-primary, #0f1115);
+  white-space: nowrap;
+}
+
+.costNote {
+  display: block;
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--dsw-alias-label-caption, #9a9aa3);
+}
+
+.panel {
+  width: 260px;
+  background: var(--dsw-specific-bubble, #f5f6f7);
+  color: var(--dsw-alias-label-primary, #0f1115);
+  border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.12));
+  border-radius: 12px;
+  padding: 12px;
+  box-shadow: 0 6px 20px rgb(0 0 0 / 24%);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.panelHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--dsw-alias-border-l2, rgba(0, 0, 0, 0.1));
+}
+
+.panelTitle {
+  font-weight: 650;
+  font-size: 13px;
+  color: var(--dsw-alias-label-primary, #0f1115);
+}
+
+.panelClose {
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--dsw-alias-label-secondary, #5b5b66);
+}
+
+.panelClose:hover {
+  background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.06));
+}
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dsw-alias-label-secondary, #5b5b66);
+}
+
+.states {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stateRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.statePreview {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.12));
+  background: var(--dsw-alias-bg-base, #ffffff);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+
+.stateEmoji {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.stateArt {
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.stateLabel {
+  flex: 1;
+  font-size: 12px;
+  color: var(--dsw-alias-label-primary, #0f1115);
+}
+
+.change {
+  font-size: 12px;
+  padding: 4px 9px;
+  border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.12));
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--dsw-alias-label-primary, #0f1115);
+  background: var(--dsw-alias-interactive-bg-hover, rgba(0, 0, 0, 0.04));
+}
+
+.change:hover {
+  background: var(--dsw-alias-interactive-bg-hover-accent, rgba(0, 0, 0, 0.08));
+}
+
+.hiddenFile {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.stateReset {
+  font-size: 12px;
+  padding: 4px 9px;
+  border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.12));
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--dsw-alias-label-secondary, #5b5b66);
+}
+
+.field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.fieldLabel {
+  color: var(--dsw-alias-label-primary, #0f1115);
+}
+
+.field input {
+  width: 72px;
+  padding: 3px 6px;
+  border: 1px solid var(--dsw-alias-border-l3, rgba(0, 0, 0, 0.12));
+  border-radius: 6px;
+  background: var(--dsw-specific-input-major, #ffffff);
+  color: var(--dsw-alias-label-primary, #0f1115);
+  text-align: right;
+}
+
+.fieldHint {
+  font-size: 11px;
+  color: var(--dsw-alias-label-secondary, #5b5b66);
+  margin-top: -4px;
+}
+
+.panelFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid var(--dsw-alias-border-l2, rgba(0, 0, 0, 0.1));
+}
+
+.reset {
+  font-size: 12px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  color: var(--dsw-alias-state-error-primary, #ef4444);
+}
+
+.reset:hover {
+  background: var(--dsw-alias-interactive-bg-hover-danger, rgba(236, 19, 19, 0.05));
+}

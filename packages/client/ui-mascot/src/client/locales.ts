@@ -1,0 +1,81 @@
+/** `mascot` namespace dictionaries. */
+
+/** Dictionary namespace owned by this plugin. */
+export const NS = 'mascot'
+
+/** Simplified Chinese dictionary (the key-set source of truth). */
+export const zh = {
+  'tz.utc': 'UTC',
+  'window.offPeak': '低谷时段 · 5 折',
+  'window.peak': '高峰时段 · 全价',
+  'kind.offPeak': '低谷时段',
+  'kind.peak': '高峰时段',
+  'level.low': '低',
+  'level.mid': '中',
+  'level.high': '高',
+  'tokens.none': '无数据',
+  'tokens.summary': '输入 {input} · 输出 {output}',
+  'state.lowBalance': '余额不足',
+  'rate.endsIn': '{countdown} 后结束 · {boundary}',
+  'fact.sessionCost': '会话费用',
+  'fact.peakLocal': '高峰时段（本地）',
+  'fact.timeZone': '时区',
+  'cost.breakdown': '明细 · {count} 个代理',
+  'cost.note': '≈ 按当前费率计价',
+  'mascot.title': '{title} · {countdown} 后进入{kind}',
+  'settings.open': '吉祥物设置',
+  'settings.close': '关闭设置',
+  'settings.appearance': '外观',
+  'settings.state.offPeak': '低谷（省钱）',
+  'settings.state.peak': '高峰（注意）',
+  'settings.state.danger': '余额不足',
+  'settings.balance': '余额',
+  'settings.threshold': '低余额阈值',
+  'settings.thresholdHint': '低于此值显示为“低”。',
+  'action.change': '更换',
+  'action.reset': '重置',
+  'action.resetToEmoji': '重置为表情',
+  'action.resetAllToEmoji': '全部重置为表情',
+  'balance.missingKey': '未设置 API 密钥',
+  'balance.readFailed': '读取失败',
+} as const
+
+/** English dictionary, key-identical to the Chinese source of truth. */
+export const en: Record<MascotKey, string> = {
+  'tz.utc': 'UTC',
+  'window.offPeak': 'Off-peak · 50% off',
+  'window.peak': 'Peak · full price',
+  'kind.offPeak': 'off-peak',
+  'kind.peak': 'peak',
+  'level.low': 'Low',
+  'level.mid': 'Mid',
+  'level.high': 'High',
+  'tokens.none': 'no data',
+  'tokens.summary': '{input} in · {output} out',
+  'state.lowBalance': 'Low balance',
+  'rate.endsIn': 'ends in {countdown} · {boundary}',
+  'fact.sessionCost': 'Session cost',
+  'fact.peakLocal': 'Peak (local)',
+  'fact.timeZone': 'Time zone',
+  'cost.breakdown': 'Breakdown · {count} agents',
+  'cost.note': '≈ priced at the current rate',
+  'mascot.title': '{title} · {countdown} until {kind}',
+  'settings.open': 'Mascot settings',
+  'settings.close': 'Close settings',
+  'settings.appearance': 'Appearance',
+  'settings.state.offPeak': 'Off-peak (saving)',
+  'settings.state.peak': 'Peak (caution)',
+  'settings.state.danger': 'Low balance',
+  'settings.balance': 'Balance',
+  'settings.threshold': 'Low-balance threshold',
+  'settings.thresholdHint': 'Balance under this shows as “Low”.',
+  'action.change': 'Change',
+  'action.reset': 'Reset',
+  'action.resetToEmoji': 'Reset to emoji',
+  'action.resetAllToEmoji': 'Reset all to emoji',
+  'balance.missingKey': 'no API key set',
+  'balance.readFailed': 'read failed',
+}
+
+/** Key domain of the `mascot` namespace (zh is the source of truth). */
+export type MascotKey = keyof typeof zh

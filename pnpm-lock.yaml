@@ -1597,6 +1597,9 @@ importers:
       '@deepseek-ai/dsh-typert-protocol':
         specifier: workspace:*
         version: link:../../typert/protocol
+      '@deepseek-ai/dsh-usage':
+        specifier: workspace:*
+        version: link:../../usage/usage
       '@deepseek-ai/dsh-user-approval':
         specifier: workspace:*
         version: link:../../interaction/user-approval
@@ -3065,6 +3068,9 @@ importers:
       '@deepseek-ai/dsh-client-ui-layout':
         specifier: workspace:*
         version: link:../../client/ui-layout
+      '@deepseek-ai/dsh-client-ui-mascot':
+        specifier: workspace:*
+        version: link:../../client/ui-mascot
       '@deepseek-ai/dsh-client-ui-message-feedback':
         specifier: workspace:*
         version: link:../../client/ui-message-feedback
@@ -3347,6 +3353,9 @@ importers:
       '@deepseek-ai/dsh-tool-workflow':
         specifier: workspace:*
         version: link:../../workflow/tool-workflow
+      '@deepseek-ai/dsh-usage':
+        specifier: workspace:*
+        version: link:../../usage/usage
       '@deepseek-ai/dsh-web-frontend':
         specifier: workspace:*
         version: link:../../../apps/web
@@ -4833,6 +4842,45 @@ importers:
       '@deepseek-ai/dsh-client-ui-theme':
         specifier: workspace:*
         version: link:../ui-theme
+      react:
+        specifier: ^18.2.0
+        version: 18.3.1
+
+  packages/client/ui-mascot:
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@deepseek-ai/dsh-api-remotes':
+        specifier: workspace:^
+        version: link:../../api/remotes
+      '@deepseek-ai/dsh-client-locale':
+        specifier: workspace:^
+        version: link:../locale
+      '@deepseek-ai/dsh-client-ui-layout':
+        specifier: workspace:^
+        version: link:../ui-layout
+      '@deepseek-ai/dsh-client-ui-renderer':
+        specifier: workspace:^
+        version: link:../ui-renderer
+      '@deepseek-ai/dsh-client-ui-session':
+        specifier: workspace:^
+        version: link:../ui-session
+      '@deepseek-ai/dsh-client-ui-slots':
+        specifier: workspace:^
+        version: link:../ui-slots
+      '@deepseek-ai/dsh-token-meter':
+        specifier: workspace:^
+        version: link:../../llm/token-meter
+      '@deepseek-ai/dsh-typert-protocol':
+        specifier: workspace:^
+        version: link:../../typert/protocol
+      '@deepseek-ai/dsh-usage':
+        specifier: workspace:^
+        version: link:../../usage/usage
+      '@types/react':
+        specifier: ~18.3.1
+        version: 18.3.31
       react:
         specifier: ^18.2.0
         version: 18.3.1
@@ -17512,6 +17560,25 @@ importers:
       '@deepseek-ai/dsh-typert-protocol':
         specifier: workspace:*
         version: link:../protocol
+
+  packages/usage/usage:
+    dependencies:
+      '@deepseek-ai/schemastery':
+        specifier: link:../../../vendor/schemastery
+        version: link:../../../vendor/schemastery
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
+    devDependencies:
+      '@deepseek-ai/cordis':
+        specifier: workspace:^
+        version: link:../../../vendor/cordis
+      '@deepseek-ai/dsh-credentials':
+        specifier: workspace:^
+        version: link:../../credentials/credentials
+      '@deepseek-ai/dsh-typert-protocol':
+        specifier: workspace:^
+        version: link:../../typert/protocol
 
   packages/util/atomic-write:
     devDependencies:

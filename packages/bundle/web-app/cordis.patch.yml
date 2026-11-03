@@ -63,6 +63,11 @@
       config:
         maxNoteBytes: 8192
 
+    # DeepSeek account-balance Remote for the cost mascot. The API key never
+    # reaches the browser: this host row resolves it and proxies /user/balance.
+    - id: usage
+      name: '@deepseek-ai/dsh-usage'
+
     # Browser Session export: `/export` command plus the shared download dialog.
     - id: session-log-download
       name: '@deepseek-ai/dsh-session-log-export'
@@ -342,6 +347,10 @@
     # Official occupants for the sidebar brand slots and the home whale frame layer.
     - id: ui-brand-official
       name: '@deepseek-ai/dsh-client-ui-brand-official'
+
+    # Floating cost mascot: pricing windows, balance read, and session cost.
+    - id: ui-mascot
+      name: '@deepseek-ai/dsh-client-ui-mascot'
 
     - id: ui-attachment
       name: '@deepseek-ai/dsh-client-ui-attachment'
